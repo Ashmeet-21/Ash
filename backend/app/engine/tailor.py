@@ -80,11 +80,20 @@ def _importance(ex: Extraction) -> dict[str, float]:
     return imp
 
 
-def clean_role(title: str) -> str:
+GENERIC_ROLES = {"engineer", "developer", "programmer", "architect"}
+
+
+def clean_role(title: str, facts: Facts | None = None) -> str:
     t = re.sub(r"\(.*?\)|\[.*?\]", " ", title)
     t = re.split(r"\s[-|/,:]\s|,", t)[0]
+    if facts is not None:
+        # Drop skills you can't evidence so the role never implies them. Before the noise
+        # filter, which would eat the "Spring" in "Spring Boot" as a season.
+        t = get_taxonomy().remove(t, set(facts.pool_names()))
     t = TITLE_NOISE.sub(" ", t)
     t = re.sub(r"\s+", " ", t).strip(" -,")
+    if t.lower() in GENERIC_ROLES:
+        t = f"Software {t}"  # "Java Engineer" -> "Engineer" -> "Software Engineer"
     return t or "entry-level"
 
 
@@ -97,7 +106,7 @@ def join_list(items: list[str]) -> str:
 def fill_template(template: str, role: str, areas: list[str], tools: list[str]) -> str:
     text = " ".join(template.split())
     # Keep the article right: "a {role}" -> "an AI Engineer".
-    if re.match(r"[AEIOU]|SRE\b|ML\b|MLOps\b|LLM\b|NLP\b", role):
+    if re.match(r"[AEIOU]|iOS\b|SRE\b|ML\b|MLOps\b|LLM\b|NLP\b", role):
         text = re.sub(r"\ba \{role\}", "an {role}", text)
     return text.replace("{role}", role).replace("{areas}", join_list(areas)).replace("{tools}", join_list(tools))
 
@@ -190,7 +199,7 @@ DRAFT_SCHEMA = {
 DRAFT_SYSTEM = """You fill three slots in a student's fixed resume Objective template for one job posting.
 
 Slots:
-- role: the job's role name as a hiring manager would say it, without seniority, location or term words.
+- role: the job's role name as a hiring manager would say it, without seniority, location or term words. If the title names a technology not on the ALLOWED SKILLS list, drop it ("Java Developer" becomes "Software Developer").
 - areas: 2 or 3 short skill-area phrases (2 to 5 words each, lowercase) that this job weights most AND that the student's evidence supports.
 - tools: 8 to 10 tools or skills, most relevant to this job first.
 
@@ -239,7 +248,7 @@ def tailor(ex: Extraction, jd_text: str, facts: Facts, use_llm: bool = True) -> 
                 return TailorResult(objective, skills, role, draft["areas"], tools, validation, "claude", attempts)
             feedback = [i.message for i in validation.errors]
 
-    role = clean_role(ex.title)
+    role = clean_role(ex.title, facts)
     areas = pick_areas(ex, facts)
     tools = pick_tools(ex, facts)
     objective = fill_template(facts.resume.objective_template, role, areas, tools)

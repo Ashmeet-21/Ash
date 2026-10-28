@@ -81,10 +81,13 @@ def validate_objective(objective: str, facts: Facts) -> ValidationResult:
             if (canon or t) not in pool:
                 res.errors.append(Issue("objective_unlisted_skill", f"Tool '{t}' is not in your evidenced skill pool."))
 
-    # The role names the job, not a claim, so it is exempt from the skill check.
+    # The role is checked on its own: "seeking a Java Engineer role" reads as a Java claim to a recruiter.
     claims = objective
     if m:
         claims = objective.replace(m.group("role"), " ", 1)
+        for name in tax.find(m.group("role")):
+            if name not in pool:
+                res.errors.append(Issue("objective_role_skill", f"Role '{m.group('role')}' names '{name}', which is not in your skill pool."))
     for name in tax.find(claims):
         if name not in pool:
             res.errors.append(Issue("objective_unlisted_skill", f"Objective names '{name}', which is not in your skill pool."))

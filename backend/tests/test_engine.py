@@ -27,8 +27,8 @@ def test_aliases_and_boundaries():
 
 def test_ambiguous_words_do_not_match():
     tax = get_taxonomy()
-    found = tax.find("For the rest of the spring term, go ahead and render the agents in testing.")
-    assert not {"REST APIs", "Spring Boot", "Go", "Render", "AI agents", "Unit testing"} & set(found)
+    found = tax.find("For the rest of the spring term, go ahead and render the agents in testing. In-person work helps spark innovation.")
+    assert not {"REST APIs", "Spring Boot", "Go", "Render", "AI agents", "Unit testing", "Spark"} & set(found)
 
 
 def test_canonical():
@@ -207,6 +207,23 @@ def test_tailor_never_adds_true_gaps(facts):
     for gap in ("Java", "Kafka", "Kubernetes", "AWS", "Spring Boot"):
         assert gap not in get_taxonomy().find(text)
     assert t.validation.ok
+
+
+def test_role_drops_skills_you_lack(facts):
+    assert clean_role("Senior Java Engineer", facts) == "Software Engineer"
+    assert clean_role("Spring Boot Backend Developer", facts) == "Backend Developer"
+    assert clean_role("Python Developer", facts) == "Python Developer"  # in the pool, so kept
+    assert clean_role("iOS Engineer, Government Products", facts) == "Software Engineer"
+    jd = (FIXTURES / "senior_java.txt").read_text()
+    t = tailor(extract(jd, title="Senior Java Engineer", use_llm=False), jd, facts, use_llm=False)
+    assert "Java" not in get_taxonomy().find(t.objective)
+    assert t.validation.ok, t.validation.to_dict()
+
+
+def test_validator_rejects_unlisted_skill_in_role(facts):
+    objective = fill_template(facts.resume.objective_template, "Java Engineer", ["backend APIs", "threat detection"], ["Python", "FastAPI"])
+    errors = validate_objective(objective, facts).errors
+    assert any(e.rule == "objective_role_skill" for e in errors)
 
 
 def test_an_article():

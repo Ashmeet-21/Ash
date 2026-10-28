@@ -67,6 +67,17 @@ def test_tailor_flow_builds_files(client, soc_jd):
     assert detail["tailored_versions"][0]["id"] == t["version"]["id"]
 
 
+def test_tailor_warns_on_poor_fit(client, soc_jd):
+    java = _score(client, (FIXTURES / "senior_java.txt").read_text(), title="Senior Java Engineer", company="Fit Test Bank")
+    v = client.post(f"/tailor/{java['id']}").json()["version"]
+    rules = [w["rule"] for w in v["validation"]["warnings"]]
+    assert "knockout" in rules and "low_fit" in rules
+    assert "Java" not in v["objective"]
+    soc = _score(client, soc_jd + "\n(fit test)", title="Junior SOC Analyst", company="Fit Test Security")
+    v = client.post(f"/tailor/{soc['id']}").json()["version"]
+    assert not any(w["rule"] in ("knockout", "low_fit") for w in v["validation"]["warnings"])
+
+
 def test_applications_lifecycle(client, soc_jd):
     job = _score(client, soc_jd + "\n(apps test)", title="Junior SOC Analyst", company="Apps Test Co")
     r = client.post("/applications", json={"job_id": job["id"], "status": "saved"})

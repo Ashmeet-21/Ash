@@ -48,6 +48,8 @@ skills:
   - {name: React Native, aliases: [], family: mobile}
   - {name: Flutter, aliases: [], family: mobile}
   - {name: Swift, aliases: [], family: mobile}
+  - {name: iOS, aliases: [], family: mobile}
+  - {name: Android, aliases: [], family: mobile}
 
   # ---- Data stores
   - {name: PostgreSQL, aliases: [postgres, psql], family: data-sql}
@@ -140,7 +142,7 @@ skills:
   - {name: Jupyter, aliases: [jupyter notebooks], family: data-py}
   - {name: Data analysis, aliases: [data analytics], family: data-analysis}
   - {name: Data visualization, aliases: [tableau, power bi, matplotlib], family: data-analysis}
-  - {name: Spark, aliases: [apache spark, pyspark], family: data-eng}
+  - {name: Spark, aliases: [apache spark, pyspark], cs_aliases: ["Spark"], family: data-eng, strict: true}
   - {name: ETL, aliases: [data pipelines, data pipeline, airflow], family: data-eng}
   - {name: MLOps, aliases: [mlflow, model deployment], family: ml-ops}
 

@@ -6,6 +6,7 @@ Matching is deterministic and explainable. Every alias is matched on word bounda
 
 from __future__ import annotations
 
+import hashlib
 import re
 from collections import Counter
 from dataclasses import dataclass, field
@@ -72,6 +73,25 @@ class Taxonomy:
                 counts[name] += 1
         return counts
 
+    def remove(self, text: str, keep: set[str]) -> str:
+        """Blank out every skill mention in `text` whose canonical name is not in `keep`.
+
+        Spans are claimed the same way as find(), so "Spring Boot" goes as a whole, not as "Spring".
+        """
+        drop: list[tuple[int, int]] = []
+        taken: list[tuple[int, int]] = []
+        for pattern, name in self._patterns:
+            for m in pattern.finditer(text):
+                span = m.span()
+                if any(span[0] < e and s < span[1] for s, e in taken):
+                    continue
+                taken.append(span)
+                if name not in keep:
+                    drop.append(span)
+        for s, e in sorted(drop, reverse=True):
+            text = text[:s] + " " + text[e:]
+        return text
+
     def family(self, name: str) -> str | None:
         skill = self.skills.get(name)
         return skill.family if skill else None
@@ -114,3 +134,9 @@ def load_taxonomy(path: Path = SKILLS_PATH) -> Taxonomy:
 @lru_cache
 def get_taxonomy() -> Taxonomy:
     return load_taxonomy()
+
+
+@lru_cache
+def taxonomy_version() -> str:
+    """Short hash of skills.yaml, so cached extractions go stale when you edit it."""
+    return hashlib.sha256(SKILLS_PATH.read_bytes()).hexdigest()[:12]

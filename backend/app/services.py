@@ -16,7 +16,7 @@ from app.engine.document import build_and_check
 from app.engine.eligibility import check_all
 from app.engine.extract import Extraction, extract, jd_hash
 from app.engine.scorer import score
-from app.engine.skills import get_taxonomy
+from app.engine.skills import get_taxonomy, taxonomy_version
 from app.engine.tailor import tailor
 from app.facts import Facts, get_facts, render_resume_text
 from app.llm import llm_available
@@ -77,8 +77,8 @@ def save_parse_check(db: Session, result: dict) -> None:
 # ---------------------------------------------------------------- scoring
 
 def get_extraction(db: Session, job: Job, use_llm: bool = True) -> Extraction:
-    """Extraction cached per JD hash, so re-scoring never pays for Claude twice."""
-    h = jd_hash(job.jd_text)
+    """Extraction cached per JD and skills.yaml, so re-scoring never pays for Claude twice."""
+    h = f"{jd_hash(job.jd_text)}:{taxonomy_version()}"
     cache = job.extraction_cache or {}
     if cache.get("hash") == h and (not use_llm or "claude" in cache["data"]["sources"] or not llm_available()):
         return Extraction.from_dict(cache["data"])
@@ -336,10 +336,20 @@ def tailor_job(db: Session, job: Job, use_llm: bool = True, build: bool = True) 
             "warnings": validation["warnings"] + files["validation"]["warnings"],
         }
         version.pdf_path = files.get("pdf_path") or files.get("docx_path")
-    version.validation = {**validation, "source": t.source, "attempts": len(t.attempts), "role": t.role, "areas": t.areas, "tools": t.tools}
-
     after_text = render_resume_text(facts, t.objective, t.skills)
     after = score(ex, after_text, job.jd_text, facts, format_score(db))
+
+    # Tailoring can't fix a poor fit; say so instead of handing over a confident-looking resume.
+    fit_warnings = [
+        {"rule": "knockout", "message": f"Knockout risk: {f.evidence_text.split(chr(10), 1)[0]}"}
+        for f in job.flags if f.severity == "block"
+    ]
+    required = [g for g in after.gaps if g.required and g.kind == "hard"]
+    covered = sum(1 for g in required if g.status == "shown")
+    if required and covered / len(required) < 0.5:
+        fit_warnings.append({"rule": "low_fit", "message": f"Only {covered} of {len(required)} must-have skills are on this resume, even after tailoring. Probably not worth applying."})
+    validation["warnings"] = fit_warnings + validation["warnings"]
+    version.validation = {**validation, "source": t.source, "attempts": len(t.attempts), "role": t.role, "areas": t.areas, "tools": t.tools}
     db.add(MatchScore(job_id=job.id, resume_version_id=version.id, total=after.total, breakdown=after.breakdown(), gaps=after.gaps_dict()))
     db.commit()
 
