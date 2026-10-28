@@ -9,3 +9,4 @@ backend/data/watchlist.yaml
 backend/data/regions.yaml
 node_modules/
 .next/
+backend/data/output/

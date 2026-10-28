@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     facts_path: Path = DATA_DIR / "facts.yaml"
     watchlist_path: Path = DATA_DIR / "watchlist.yaml"
     regions_path: Path = DATA_DIR / "regions.yaml"
+    # Built DOCX/PDF resumes.
+    output_dir: Path = DATA_DIR / "output"
 
     # Optional bearer token. When set, every endpoint except /health requires it.
     api_token: str | None = None

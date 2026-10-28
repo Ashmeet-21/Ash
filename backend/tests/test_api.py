@@ -43,7 +43,7 @@ def test_linkedin_link_refused(client):
 def test_feed_filters(client, soc_jd):
     _score(client, soc_jd, title="Junior SOC Analyst", company="Northwind Security")
     _score(client, (FIXTURES / "senior_java.txt").read_text(), title="Senior Backend Engineer (Java)", company="Maple Bank")
-    all_jobs = client.get("/jobs").json()
+    all_jobs = client.get("/jobs", params={"sort": "score"}).json()
     assert all_jobs["total"] >= 2
     scores = [j["score"] for j in all_jobs["items"] if not j["flag_counts"]["block"]]
     assert scores == sorted(scores, reverse=True)

@@ -67,6 +67,7 @@ app.add_middleware(
     allow_origins=[o.strip() for o in get_settings().cors_origins.split(",")],
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Content-Disposition"],  # lets the browser keep the download filename
 )
 
 
@@ -172,7 +173,7 @@ def list_jobs(
     q: str | None = None,
     hide_blocked: bool = False,
     include_closed: bool = False,
-    sort: Literal["score", "newest"] = "score",
+    sort: Literal["potential", "score", "newest"] = "potential",
     limit: int = Query(100, le=500),
     offset: int = 0,
 ):
@@ -191,7 +192,7 @@ def list_jobs(
     rows = []
     for job in db.scalars(stmt).all():
         s = services.job_summary(db, job, master.id)
-        if s["score"] is None or s["score"] < min_score:
+        if s["score"] is None or max(s["score"], s["potential"] or 0) < min_score:
             continue
         if region and region not in s["regions"]:
             continue
@@ -205,7 +206,8 @@ def list_jobs(
     if sort == "newest":
         rows.sort(key=lambda r: r["posted_at"] or r["first_seen_at"], reverse=True)
     else:
-        rows.sort(key=lambda r: (r["flag_counts"]["block"] > 0, -(r["score"] or 0)))
+        key = "potential" if sort == "potential" else "score"
+        rows.sort(key=lambda r: (r["flag_counts"]["block"] > 0, -(r[key] or r["score"] or 0)))
     return {"total": len(rows), "items": rows[offset: offset + limit]}
 
 
@@ -240,9 +242,9 @@ def alerts(since_hours: int = 24, db: Session = Depends(get_db)):
     out = []
     for job in db.scalars(select(Job).where(Job.active.is_(True), Job.first_seen_at >= since)).all():
         s = services.job_summary(db, job, master.id)
-        if (s["score"] or 0) >= get_settings().alert_min_score and not s["flag_counts"]["block"]:
+        if (s["potential"] or s["score"] or 0) >= get_settings().alert_min_score and not s["flag_counts"]["block"]:
             out.append(s)
-    return sorted(out, key=lambda s: -s["score"])
+    return sorted(out, key=lambda s: -(s["potential"] or s["score"]))
 
 
 # ---------------------------------------------------------------- tailoring
@@ -373,14 +375,16 @@ def insights_skills(min_score: float = 0, db: Session = Depends(get_db)):
 @app.get("/insights/summary", dependencies=auth)
 def insights_summary(db: Session = Depends(get_db)):
     master = services.ensure_master(db)
-    scores = db.scalars(select(MatchScore.total).join(Job).where(MatchScore.resume_version_id == master.id, Job.active.is_(True))).all()
+    rows = db.scalars(select(MatchScore).join(Job).where(MatchScore.resume_version_id == master.id, Job.active.is_(True))).all()
+    scores = [m.total for m in rows]
+    potentials = [((m.breakdown or {}).get("_meta") or {}).get("potential", m.total) for m in rows]
     apps = db.scalars(select(Application)).all()
     by_status: dict[str, int] = {}
     for a in apps:
         by_status[a.status] = by_status.get(a.status, 0) + 1
     return {
         "active_jobs": len(scores),
-        "strong_matches": sum(1 for s in scores if s >= get_settings().alert_min_score),
+        "strong_matches": sum(1 for p in potentials if p >= get_settings().alert_min_score),
         "avg_score": round(sum(scores) / len(scores), 1) if scores else None,
         "applications": by_status,
     }

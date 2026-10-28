@@ -1,0 +1,30 @@
+title: Junior SOC Analyst
+company: Northwind Security
+location: Vancouver, BC
+verdict: apply
+expected_flags: []
+jd_text: |
+  Junior SOC Analyst
+  Location: Vancouver, BC (Hybrid)
+
+  About us
+  Northwind Security protects credit unions across Western Canada.
+
+  What you'll do
+  - Monitor alerts in Splunk and Microsoft Sentinel, triage incidents and escalate.
+  - Write Python scripts to automate log analysis.
+  - Document investigations clearly for the wider team.
+
+  Requirements
+  - Bachelor's degree in Computer Science, Cybersecurity or a related field
+  - 0-2 years of experience in a SOC or IT role
+  - Familiarity with SIEM tools, MITRE ATT&CK and incident response
+  - Linux and networking fundamentals (TCP/IP, DNS)
+  - Strong communication skills
+
+  Nice to have
+  - Security+ or CySA+
+  - Experience with AWS and Docker
+
+  Salary: $60,000 - $72,000 CAD per year
+  Candidates must be legally authorized to work in Canada. We are unable to provide sponsorship.

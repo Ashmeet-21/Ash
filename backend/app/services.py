@@ -11,7 +11,7 @@ import yaml
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.config import DATA_DIR, get_settings, resolve_data_file
+from app.config import get_settings, resolve_data_file
 from app.engine.document import build_and_check
 from app.engine.eligibility import check_all
 from app.engine.extract import Extraction, extract, jd_hash
@@ -27,7 +27,6 @@ from app.sources.ats import FETCHERS
 from app.sources.base import JobIn, SourceError
 
 log = logging.getLogger(__name__)
-OUTPUT_DIR = DATA_DIR / "output"
 
 
 # ---------------------------------------------------------------- profile
@@ -110,12 +109,23 @@ def analyze_job(db: Session, job: Job, use_llm: bool = True) -> MatchScore:
     for f in check_all(job.jd_text, ex, facts):
         job.flags.append(Flag(type=f.type, severity=f.severity, evidence_text=f"{f.message}\n{f.evidence}".strip()))
 
-    result = score(ex, render_resume_text(facts), job.jd_text, facts, format_score(db))
+    fmt = format_score(db)
+    result = score(ex, render_resume_text(facts), job.jd_text, facts, fmt)
+    breakdown = result.breakdown()
+    breakdown["_meta"] = {"potential": potential_score(ex, job.jd_text, facts, fmt)}
     db.query(MatchScore).filter(MatchScore.job_id == job.id, MatchScore.resume_version_id == master.id).delete()
-    ms = MatchScore(job_id=job.id, resume_version_id=master.id, total=result.total, breakdown=result.breakdown(), gaps=result.gaps_dict())
+    ms = MatchScore(job_id=job.id, resume_version_id=master.id, total=result.total, breakdown=breakdown, gaps=result.gaps_dict())
     db.add(ms)
     db.commit()
     return ms
+
+
+def potential_score(ex: Extraction, jd_text: str, facts: Facts, fmt: float | None) -> float:
+    """Score after the deterministic tailor: what this job is worth once Objective and Skills are fitted."""
+    t = tailor(ex, jd_text, facts, use_llm=False)
+    if not t.validation.ok:
+        return score(ex, render_resume_text(facts), jd_text, facts, fmt).total
+    return score(ex, render_resume_text(facts, t.objective, t.skills), jd_text, facts, fmt).total
 
 
 def job_hash(company: str | None, title: str, location: str | None) -> str:
@@ -229,9 +239,10 @@ def ingest(db: Session, use_llm: bool = True) -> dict:
             summary["errors"].append(f"job {job.id}: {e}")
             continue
         blocked = any(f.severity == "block" for f in job.flags)
-        if ms.total >= threshold and not blocked:
-            summary["new_matches"].append({"id": job.id, "title": job.title, "company": job.company, "score": ms.total})
-    summary["new_matches"].sort(key=lambda m: -m["score"])
+        potential = (ms.breakdown.get("_meta") or {}).get("potential", ms.total)
+        if potential >= threshold and not blocked:
+            summary["new_matches"].append({"id": job.id, "title": job.title, "company": job.company, "score": ms.total, "potential": potential})
+    summary["new_matches"].sort(key=lambda m: -m["potential"])
     return summary
 
 
@@ -267,7 +278,9 @@ def job_summary(db: Session, job: Job, master_id: int) -> dict:
         "source": job.source, "url": job.url, "posted_at": job.posted_at, "first_seen_at": job.first_seen_at,
         "active": job.active, "regions": regions, "role_type": role_type(job.title),
         "salary": {"min": job.salary_min, "max": job.salary_max, "currency": job.salary_currency} if job.salary_min else None,
-        "score": ms.total if ms else None, "flag_counts": flags,
+        "score": ms.total if ms else None,
+        "potential": ((ms.breakdown or {}).get("_meta") or {}).get("potential") if ms else None,
+        "flag_counts": flags,
         "application_status": app_row.status if app_row else None,
     }
 
@@ -316,7 +329,7 @@ def tailor_job(db: Session, job: Job, use_llm: bool = True, build: bool = True) 
     validation = t.validation.to_dict()
     files: dict = {}
     if build and t.validation.ok:
-        files = build_and_check(facts, t.objective, t.skills, OUTPUT_DIR, f"resume_{version.id}")
+        files = build_and_check(facts, t.objective, t.skills, get_settings().output_dir, f"resume_{version.id}")
         validation = {
             "ok": validation["ok"] and files["validation"]["ok"],
             "errors": validation["errors"] + files["validation"]["errors"],

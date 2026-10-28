@@ -5,6 +5,7 @@ from pathlib import Path
 # Isolated database and no network LLM calls for every test run.
 _tmp = tempfile.mkdtemp()
 os.environ["JOBMATCH_DATABASE_URL"] = f"sqlite:///{Path(_tmp) / 'test.db'}"
+os.environ["JOBMATCH_OUTPUT_DIR"] = str(Path(_tmp) / "output")
 os.environ["JOBMATCH_USE_LLM"] = "false"
 os.environ.pop("ANTHROPIC_API_KEY", None)
 
