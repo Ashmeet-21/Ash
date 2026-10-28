@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+backend/jobmatch.db
+backend/.env
+backend/data/facts.yaml
+backend/data/watchlist.yaml
+backend/data/regions.yaml
+node_modules/
+.next/
+backend/data/output/

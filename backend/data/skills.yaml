@@ -1,0 +1,164 @@
+# Skill taxonomy: canonical name, aliases (matched case-insensitively on word boundaries),
+# `cs_aliases` (matched case-sensitively, for short or ambiguous words like "Go"),
+# a family (skills in the same family count as "adjacent" evidence for each other)
+# and a kind (hard | soft). Labels follow ESCO where a matching concept exists.
+# Add skills freely; the matcher, scorer and validator all read this file.
+
+skills:
+  # ---- Programming languages
+  - {name: Python, aliases: [python3, py], family: lang-backend}
+  - {name: Java, aliases: [], family: lang-jvm}
+  - {name: Kotlin, aliases: [], family: lang-jvm}
+  - {name: Scala, aliases: [], family: lang-jvm}
+  - {name: JavaScript, aliases: [js, ecmascript, es6], family: lang-web}
+  - {name: TypeScript, aliases: [ts], family: lang-web}
+  - {name: C, cs_aliases: ["C"], aliases: [], family: lang-systems, strict: true}
+  - {name: C++, aliases: [cpp, "c plus plus"], family: lang-systems}
+  - {name: C#, aliases: [csharp, "c sharp"], family: lang-dotnet}
+  - {name: .NET, aliases: [dotnet, "asp.net", ".net core"], family: lang-dotnet}
+  - {name: Go, aliases: [golang], cs_aliases: ["Go"], family: lang-systems, strict: true}
+  - {name: Rust, aliases: [], family: lang-systems}
+  - {name: Ruby, aliases: [], family: lang-backend}
+  - {name: PHP, aliases: [], family: lang-backend}
+  - {name: Bash, aliases: [shell scripting, bash scripting, zsh], family: scripting}
+  - {name: PowerShell, aliases: [], family: scripting}
+  - {name: SQL, aliases: [t-sql, pl/sql, structured query language], family: data-sql}
+  - {name: HTML, aliases: [html5], family: web-markup}
+  - {name: CSS, aliases: [css3, scss, sass], family: web-markup}
+
+  # ---- Backend frameworks and APIs
+  - {name: FastAPI, aliases: [fast api], family: py-web}
+  - {name: Django, aliases: [django rest framework, drf], family: py-web}
+  - {name: Flask, aliases: [], family: py-web}
+  - {name: Node.js, aliases: [node, nodejs, node js], family: js-backend}
+  - {name: Express, aliases: [express.js, expressjs], family: js-backend}
+  - {name: Spring Boot, aliases: [spring framework], family: jvm-web}
+  - {name: REST APIs, aliases: [restful, rest api, restful apis, restful api], family: api}
+  - {name: GraphQL, aliases: [], family: api}
+  - {name: gRPC, aliases: [], family: api}
+  - {name: WebSockets, aliases: [websocket], family: api}
+  - {name: Microservices, aliases: [microservice architecture, micro-services], family: architecture}
+
+  # ---- Frontend
+  - {name: React, aliases: [react.js, reactjs], family: js-frontend}
+  - {name: Next.js, aliases: [nextjs, next js], family: js-frontend}
+  - {name: Vue, aliases: [vue.js, vuejs], family: js-frontend}
+  - {name: Angular, aliases: [angularjs], family: js-frontend}
+  - {name: Tailwind CSS, aliases: [tailwind, tailwindcss], family: web-markup}
+  - {name: React Native, aliases: [], family: mobile}
+  - {name: Flutter, aliases: [], family: mobile}
+  - {name: Swift, aliases: [], family: mobile}
+  - {name: iOS, aliases: [], family: mobile}
+  - {name: Android, aliases: [], family: mobile}
+
+  # ---- Data stores
+  - {name: PostgreSQL, aliases: [postgres, psql], family: data-sql}
+  - {name: MySQL, aliases: [mariadb], family: data-sql}
+  - {name: SQLite, aliases: [], family: data-sql}
+  - {name: MongoDB, aliases: [mongo], family: data-nosql}
+  - {name: Redis, aliases: [], family: data-nosql}
+  - {name: Elasticsearch, aliases: [elastic search, opensearch], family: search}
+  - {name: pgvector, aliases: [], family: vector-db}
+  - {name: Vector databases, aliases: [vector database, vector db, pinecone, weaviate, chroma, faiss], family: vector-db}
+
+  # ---- Cloud and DevOps
+  - {name: AWS, aliases: [amazon web services, ec2, s3, lambda, aws lambda], family: cloud}
+  - {name: Azure, aliases: [microsoft azure], family: cloud}
+  - {name: GCP, aliases: [google cloud, google cloud platform], family: cloud}
+  - {name: Docker, aliases: [containers, containerization, dockerfile], family: containers}
+  - {name: Kubernetes, aliases: [k8s, kubectl, eks, gke, aks], family: containers}
+  - {name: Terraform, aliases: [infrastructure as code, iac], family: iac}
+  - {name: Ansible, aliases: [], family: iac}
+  - {name: CI/CD, aliases: [ci cd, continuous integration, continuous delivery, continuous deployment], family: cicd}
+  - {name: GitHub Actions, aliases: [gh actions], family: cicd}
+  - {name: Jenkins, aliases: [], family: cicd}
+  - {name: Git, aliases: [github, gitlab, version control], family: vcs}
+  - {name: Linux, aliases: [unix, ubuntu, debian, red hat, rhel, centos], family: os}
+  - {name: Windows Server, aliases: [active directory, windows administration], family: os}
+  - {name: Netlify, aliases: [], family: hosting}
+  - {name: Render, cs_aliases: ["Render"], aliases: [], family: hosting, strict: true}
+  - {name: Vercel, aliases: [], family: hosting}
+
+  # ---- Security
+  - {name: SIEM, aliases: [security information and event management], family: siem}
+  - {name: Splunk, aliases: [splunk enterprise, spl], family: siem}
+  - {name: Microsoft Sentinel, aliases: [azure sentinel, sentinel], family: siem}
+  - {name: Elastic Security, aliases: [elk, elk stack, elastic stack, kibana], family: siem}
+  - {name: Wazuh, aliases: [], family: siem}
+  - {name: SOC operations, aliases: [soc, security operations, security operations center, soc analyst], family: secops}
+  - {name: Incident response, aliases: [incident handling, ir], family: secops}
+  - {name: Threat hunting, aliases: [], family: secops}
+  - {name: Threat intelligence, aliases: [cti, threat intel], family: secops}
+  - {name: Log analysis, aliases: [log monitoring, log management], family: secops}
+  - {name: MITRE ATT&CK, aliases: [mitre attack, mitre att&ck framework, att&ck], family: frameworks-sec}
+  - {name: NIST CSF, aliases: [nist, nist cybersecurity framework, nist 800-53], family: frameworks-sec}
+  - {name: ISO 27001, aliases: [iso/iec 27001], family: frameworks-sec}
+  - {name: OWASP Top 10, aliases: [owasp], family: appsec}
+  - {name: Application security, aliases: [appsec, secure coding, secure software development], family: appsec}
+  - {name: Penetration testing, aliases: [pentesting, pen testing, ethical hacking, pentest], family: offsec}
+  - {name: Vulnerability management, aliases: [vulnerability assessment, vulnerability scanning], family: vulnmgmt}
+  - {name: Nessus, aliases: [tenable], family: vulnmgmt}
+  - {name: Burp Suite, aliases: [burp], family: offsec}
+  - {name: Metasploit, aliases: [], family: offsec}
+  - {name: Nmap, aliases: [], family: netsec}
+  - {name: Wireshark, aliases: [packet analysis, tcpdump], family: netsec}
+  - {name: Network security, aliases: [firewalls, firewall, ids/ips, ids, ips, intrusion detection], family: netsec}
+  - {name: Networking, aliases: [tcp/ip, dns, dhcp, routing and switching, osi model], family: netsec}
+  - {name: SAST, aliases: [static analysis, semgrep, sonarqube, codeql], family: appsec}
+  - {name: DAST, aliases: [dynamic analysis, owasp zap, zap], family: appsec}
+  - {name: Threat modeling, aliases: [stride], family: appsec}
+  - {name: Cloud security, aliases: [cspm, cloud security posture], family: cloudsec}
+  - {name: IAM, aliases: [identity and access management, okta, sso, oauth, oauth2, saml], family: identity}
+  - {name: Cryptography, aliases: [encryption, pki, tls], family: crypto}
+  - {name: EDR, aliases: [endpoint detection and response, crowdstrike, defender for endpoint, sentinelone], family: endpoint}
+  - {name: Digital forensics, aliases: [forensics, dfir, autopsy, volatility], family: secops}
+  - {name: Phishing analysis, aliases: [email security, phishing], family: secops}
+  - {name: Malware analysis, aliases: [reverse engineering], family: offsec}
+  - {name: Security+, aliases: [comptia security+, security plus, sec+], family: certs}
+  - {name: CySA+, aliases: [comptia cysa+], family: certs}
+  - {name: CEH, aliases: [certified ethical hacker], family: certs}
+  - {name: OSCP, aliases: [], family: certs}
+  - {name: CISSP, aliases: [], family: certs}
+  - {name: Google Cybersecurity Certificate, aliases: [google cybersecurity professional certificate], family: certs}
+
+  # ---- AI / ML / data
+  - {name: Machine learning, aliases: [ml, machine-learning], family: ml}
+  - {name: Deep learning, aliases: [neural networks], family: ml}
+  - {name: NLP, aliases: [natural language processing], family: ml}
+  - {name: LLMs, aliases: [llm, large language models, large language model, generative ai, genai, gen ai], family: llm}
+  - {name: Prompt engineering, aliases: [], family: llm}
+  - {name: RAG, aliases: [retrieval augmented generation, retrieval-augmented generation], family: llm}
+  - {name: Claude API, aliases: [anthropic api, claude], family: llm-api}
+  - {name: OpenAI API, aliases: [openai, gpt-4, chatgpt api], family: llm-api}
+  - {name: LangChain, aliases: [llamaindex], family: llm}
+  - {name: AI agents, aliases: [agentic ai, ai agent, ai agents, llm agents, tool use, function calling], family: llm}
+  - {name: Embeddings, aliases: [vector embeddings, sentence transformers, semantic search], family: llm}
+  - {name: PyTorch, aliases: [torch], family: ml-framework}
+  - {name: TensorFlow, aliases: [keras], family: ml-framework}
+  - {name: scikit-learn, aliases: [sklearn, scikit learn], family: ml-framework}
+  - {name: Hugging Face, aliases: [huggingface, transformers], family: ml-framework}
+  - {name: pandas, aliases: [], family: data-py}
+  - {name: NumPy, aliases: [], family: data-py}
+  - {name: Jupyter, aliases: [jupyter notebooks], family: data-py}
+  - {name: Data analysis, aliases: [data analytics], family: data-analysis}
+  - {name: Data visualization, aliases: [tableau, power bi, matplotlib], family: data-analysis}
+  - {name: Spark, aliases: [apache spark, pyspark], cs_aliases: ["Spark"], family: data-eng, strict: true}
+  - {name: ETL, aliases: [data pipelines, data pipeline, airflow], family: data-eng}
+  - {name: MLOps, aliases: [mlflow, model deployment], family: ml-ops}
+
+  # ---- Engineering practice
+  - {name: Unit testing, aliases: [pytest, jest, junit, test automation, automated testing], family: testing}
+  - {name: Object-oriented programming, aliases: [oop, object oriented programming, object oriented design], family: cs-fundamentals}
+  - {name: Data structures and algorithms, aliases: [data structures, algorithms, dsa], family: cs-fundamentals}
+  - {name: System design, aliases: [distributed systems, scalable systems], family: architecture}
+  - {name: Agile, aliases: [scrum, kanban, agile methodologies], family: process}
+  - {name: Jira, aliases: [confluence], family: process}
+
+  # ---- Soft skills (scored in the keyword component only, never padded into Skills)
+  - {name: Communication, aliases: [communication skills, written and verbal communication, verbal communication], family: soft, kind: soft}
+  - {name: Teamwork, aliases: [collaboration, collaborative, team player, cross-functional], family: soft, kind: soft}
+  - {name: Problem solving, aliases: [problem-solving, analytical skills, critical thinking], family: soft, kind: soft}
+  - {name: Attention to detail, aliases: [detail-oriented, detail oriented], family: soft, kind: soft}
+  - {name: Time management, aliases: [prioritization, organizational skills], family: soft, kind: soft}
+  - {name: Curiosity, aliases: [eager to learn, willingness to learn, growth mindset, self-starter], family: soft, kind: soft}
+  - {name: Documentation, aliases: [technical writing, technical documentation], family: soft, kind: soft}

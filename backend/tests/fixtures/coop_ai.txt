@@ -1,0 +1,13 @@
+AI Engineering Co-op (Summer 2027)
+Location: Remote (Canada)
+
+We are looking for a co-op student for a 12-month work term starting May 2027.
+Applicants must be currently enrolled in a post-secondary program and graduating between December 2027 and June 2028.
+
+What you'll bring:
+- Python and FastAPI
+- Experience building with LLMs, RAG and the Claude API or OpenAI API
+- PostgreSQL and pgvector
+- Docker
+
+Bonus: LangChain, PyTorch

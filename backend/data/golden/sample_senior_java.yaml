@@ -1,0 +1,20 @@
+title: Senior Backend Engineer (Java)
+company: Maple Bank
+location: Toronto, ON
+verdict: skip
+expected_flags:
+- language
+- years_required
+- education
+jd_text: |
+  Senior Backend Engineer (Java)
+  Location: Toronto, ON
+
+  Requirements:
+  - 6+ years of professional experience building backend services in Java and Spring Boot
+  - Deep experience with Kafka, Kubernetes and AWS
+  - Master's degree in Computer Science required
+  - Fluency in French is required for this role
+
+  Nice to have:
+  - Experience with GraphQL

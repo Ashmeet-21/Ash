@@ -1,0 +1,44 @@
+# Local stack: PostgreSQL + API + dashboard.  docker compose up --build
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: jobmatch
+      POSTGRES_PASSWORD: jobmatch
+      POSTGRES_DB: jobmatch
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jobmatch"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      JOBMATCH_DATABASE_URL: postgresql+psycopg://jobmatch:jobmatch@db:5432/jobmatch
+      JOBMATCH_CORS_ORIGINS: http://localhost:3000
+      JOBMATCH_SCHEDULER: "true"
+    volumes:
+      - ./backend/data:/app/data   # your facts.yaml, watchlist.yaml and built resumes
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

@@ -1,0 +1,126 @@
+# EXAMPLE facts file for a fictional student. Copy to data/facts.yaml and replace every value
+# with your real master resume. data/facts.yaml is git-ignored so personal data stays local.
+#
+# Rules the app enforces against this file:
+#   - Only Objective and Skills are ever rewritten. Projects, experience, education and
+#     certifications are locked word-for-word.
+#   - Skills may only come from skill_pool, and each pool skill needs evidence.
+#   - Objective drafts may only name skills from skill_pool.
+
+profile:
+  name: Alex Example
+  contact:            # never sent to the LLM
+    email: alex@example.com
+    phone: "+1 604 555 0100"
+    linkedin: linkedin.com/in/alex-example
+    github: github.com/alex-example
+    location: Vancouver, BC
+  graduation: 2027-05
+  degree: {level: bachelor, field: Computer Science, institution: Example University}
+  current_location: Vancouver, BC
+  open_to_regions: [vancouver, gurugram-noida, dubai, remote]
+  needs_sponsorship: {vancouver: false, gurugram-noida: false, dubai: true, remote: false}
+  languages: [English, Hindi]
+  years_experience: 0.5
+  max_term_months: 8
+  earliest_start: 2027-01
+  target_titles:
+    - Security Analyst
+    - SOC Analyst
+    - Application Security Engineer
+    - Software Engineer
+    - Backend Developer
+    - AI Engineer
+    - Machine Learning Engineer
+
+skill_pool:
+  - {skill: Python, evidence: [LogSentry, PhishGuard, IT Support Co-op]}
+  - {skill: TypeScript, evidence: [PhishGuard]}
+  - {skill: JavaScript, evidence: [PhishGuard]}
+  - {skill: SQL, evidence: [LogSentry]}
+  - {skill: Bash, evidence: [LogSentry, IT Support Co-op]}
+  - {skill: FastAPI, evidence: [LogSentry, PhishGuard]}
+  - {skill: REST APIs, evidence: [LogSentry, PhishGuard]}
+  - {skill: Next.js, evidence: [PhishGuard]}
+  - {skill: React, evidence: [PhishGuard]}
+  - {skill: Tailwind CSS, evidence: [PhishGuard]}
+  - {skill: PostgreSQL, evidence: [LogSentry, PhishGuard]}
+  - {skill: Docker, evidence: [LogSentry, PhishGuard]}
+  - {skill: Git, evidence: [LogSentry, PhishGuard]}
+  - {skill: GitHub Actions, evidence: [PhishGuard]}
+  - {skill: CI/CD, evidence: [PhishGuard]}
+  - {skill: Linux, evidence: [LogSentry, IT Support Co-op]}
+  - {skill: Claude API, evidence: [LogSentry]}
+  - {skill: LLMs, evidence: [LogSentry]}
+  - {skill: Prompt engineering, evidence: [LogSentry]}
+  - {skill: SIEM, evidence: [LogSentry]}
+  - {skill: Wazuh, evidence: [LogSentry]}
+  - {skill: Log analysis, evidence: [LogSentry]}
+  - {skill: MITRE ATT&CK, evidence: [LogSentry]}
+  - {skill: Incident response, evidence: [LogSentry]}
+  - {skill: Phishing analysis, evidence: [PhishGuard]}
+  - {skill: OWASP Top 10, evidence: [PhishGuard]}
+  - {skill: Networking, evidence: [IT Support Co-op]}
+  - {skill: Wireshark, evidence: [Networking coursework lab]}
+  - {skill: Unit testing, evidence: [PhishGuard]}
+  - {skill: Machine learning, evidence: [PhishGuard]}
+  - {skill: scikit-learn, evidence: [PhishGuard]}
+  - {skill: Netlify, evidence: [PhishGuard]}
+  - {skill: Security+, evidence: [CompTIA Security+ certification]}
+  - {skill: Communication, evidence: [IT Support Co-op]}
+  - {skill: Problem solving, evidence: [IT Support Co-op]}
+
+resume:
+  section_order: [Header, Objective, Skills, Projects, Experience, Education, Certifications]
+  # {role}, {areas} and {tools} are the only slots the tailor fills.
+  objective_template: >-
+    Computer Science student graduating May 2027 seeking a {role} role, bringing hands-on
+    project experience in {areas} using {tools}.
+  objective: >-
+    Computer Science student graduating May 2027 seeking a Security Analyst role, bringing hands-on
+    project experience in security monitoring, backend APIs and LLM tooling using Python, FastAPI,
+    PostgreSQL, Docker, Wazuh, SIEM, Linux and Claude API.
+  skills:
+    Languages: [Python, TypeScript, JavaScript, SQL, Bash]
+    Frameworks and Tools: [FastAPI, Next.js, React, PostgreSQL, Docker, Git, GitHub Actions, Linux]
+    Security and AI: [SIEM, Wazuh, Log analysis, MITRE ATT&CK, OWASP Top 10, Claude API, LLMs]
+  skills_line_max_chars: 110
+  projects:
+    - title: LogSentry, LLM-Assisted Alert Triage
+      tech: Python, FastAPI, PostgreSQL, Wazuh, Claude API, Docker
+      dates: Jan 2026 to Apr 2026
+      bullets:
+        - Built a FastAPI service that ingests Wazuh alerts into PostgreSQL and groups 2,000+ daily events into incidents.
+        - Mapped alert rules to MITRE ATT&CK techniques and used the Claude API to draft triage notes for analyst review.
+        - Packaged the stack with Docker Compose and wrote Bash scripts to replay sample logs for testing.
+    - title: PhishGuard, Phishing URL Classifier
+      tech: TypeScript, Next.js, FastAPI, scikit-learn, PostgreSQL
+      dates: Sep 2025 to Dec 2025
+      bullets:
+        - Trained a scikit-learn classifier on 40,000 labeled URLs and served predictions through a FastAPI endpoint.
+        - Built a Next.js dashboard with Tailwind CSS and deployed it on Netlify with GitHub Actions CI and pytest checks.
+        - Reviewed the app against the OWASP Top 10 and fixed input validation and rate limiting gaps.
+  experience:
+    - title: IT Support Co-op
+      org: Example Credit Union
+      dates: May 2025 to Aug 2025
+      bullets:
+        - Resolved 300+ hardware, network and account tickets for 150 staff across three branches.
+        - Wrote Python and Bash scripts to automate Linux workstation setup, cutting setup time from 2 hours to 30 minutes.
+  education:
+    - title: Bachelor of Science, Computer Science
+      org: Example University
+      dates: Sep 2023 to May 2027
+  certifications:
+    - CompTIA Security+ (2025)
+
+# Phrases the Objective must never contain (overclaiming).
+banned_phrases:
+  - production experience
+  - years of experience
+  - expert
+  - seasoned
+  - senior
+  - extensive experience
+  - proven track record
+  - industry experience
