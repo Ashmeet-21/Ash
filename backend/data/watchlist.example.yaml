@@ -1,0 +1,20 @@
+# Companies whose public ATS boards are pulled on every ingest.
+# board = the token in the board URL:
+#   greenhouse: boards.greenhouse.io/<board>
+#   lever:      jobs.lever.co/<board>
+#   ashby:      jobs.ashbyhq.com/<board>
+# Copy to data/watchlist.yaml and edit. Tokens below are examples; check each board URL.
+companies:
+  - {name: Example Security Co, ats: greenhouse, board: examplesecurity}
+  - {name: Example AI Startup, ats: ashby, board: exampleai}
+  - {name: Example Fintech, ats: lever, board: examplefintech}
+
+# Optional aggregator searches (Adzuna needs JOBMATCH_ADZUNA_APP_ID / _APP_KEY).
+searches:
+  - {source: adzuna, region: vancouver, what: "junior security analyst"}
+  - {source: adzuna, region: vancouver, what: "new grad software engineer"}
+  - {source: adzuna, region: gurugram-noida, what: "graduate software engineer"}
+
+# Only keep postings whose title matches one of these (case-insensitive substrings). Empty = keep all.
+title_include: [security, soc, analyst, software, developer, engineer, ai, machine learning, backend, full stack, new grad, graduate, junior, intern, co-op]
+title_exclude: [senior, staff, principal, lead, manager, director, head of, sr.]

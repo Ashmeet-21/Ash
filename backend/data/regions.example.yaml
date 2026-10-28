@@ -1,0 +1,21 @@
+# Region keys used by filters, eligibility checks and the watchlist.
+# A job belongs to a region when its location text contains any keyword (case-insensitive).
+regions:
+  vancouver:
+    label: Vancouver, BC
+    country: canada
+    keywords: [vancouver, burnaby, richmond, surrey, coquitlam, "north vancouver", "british columbia", ", bc", "bc,"]
+    adzuna: {country: ca, where: Vancouver}
+  gurugram-noida:
+    label: Gurugram / Noida
+    country: india
+    keywords: [gurugram, gurgaon, noida, "greater noida", delhi, "new delhi", ncr, "delhi ncr"]
+    adzuna: {country: in, where: Gurgaon}
+  dubai:
+    label: Dubai
+    country: uae
+    keywords: [dubai, "united arab emirates", uae, "abu dhabi", sharjah]
+  remote:
+    label: Remote
+    country: any
+    keywords: [remote, "work from home", wfh, anywhere, distributed]
