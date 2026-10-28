@@ -16,7 +16,7 @@ skills:
   - {name: C++, aliases: [cpp, "c plus plus"], family: lang-systems}
   - {name: C#, aliases: [csharp, "c sharp"], family: lang-dotnet}
   - {name: .NET, aliases: [dotnet, "asp.net", ".net core"], family: lang-dotnet}
-  - {name: Go, aliases: [golang], cs_aliases: ["Go"], family: lang-systems}
+  - {name: Go, aliases: [golang], cs_aliases: ["Go"], family: lang-systems, strict: true}
   - {name: Rust, aliases: [], family: lang-systems}
   - {name: Ruby, aliases: [], family: lang-backend}
   - {name: PHP, aliases: [], family: lang-backend}

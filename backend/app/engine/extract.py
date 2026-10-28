@@ -42,9 +42,10 @@ YEARS_RE = re.compile(
 EDU_LEVELS = [
     ("phd", re.compile(r"\b(ph\.?d|doctorate|doctoral)\b", re.I)),
     ("master", re.compile(r"\b(master'?s|m\.?sc?\b|m\.?eng|mba|m\.?tech)\b", re.I)),
-    ("bachelor", re.compile(r"\b(bachelor'?s?|b\.?sc?\b|b\.?a\.?\b|b\.?eng|b\.?tech|b\.?e\.?\b|undergraduate degree|university degree|4-year degree|degree in)\b", re.I)),
+    ("bachelor", re.compile(r"\b(bachelor'?s?|b\.?sc?\b|b\.?a\.?\b|b\.?eng|b\.?tech|b\.?e\.?\b|undergraduate degree|4-year degree)\b", re.I)),
     ("diploma", re.compile(r"\b(diploma|associate'?s? degree|certificate program)\b", re.I)),
 ]
+GENERIC_DEGREE = re.compile(r"\b(university degree|degree in|post-secondary degree|college degree)\b", re.I)
 EDU_RANK = {"diploma": 1, "associate": 1, "bachelor": 2, "master": 3, "phd": 4}
 EDU_FIELDS = re.compile(
     r"\b(computer science|computer engineering|software engineering|information technology|information systems|"
@@ -146,7 +147,8 @@ def _salary(text: str) -> dict | None:
         return None
     if m.group("lpa_lo"):
         return {"min": float(m.group("lpa_lo")) * 100_000, "max": float(m.group("lpa_hi")) * 100_000, "currency": "INR"}
-    cur = m.group("cur").upper().replace("RS.", "INR").replace("RS", "INR").replace("₹", "INR").replace("C$", "CAD").replace("US$", "USD").replace("$", "USD?")
+    trailing = re.match(r"\s*(CAD|USD|AED|INR)\b", text[m.end():], re.I)
+    cur = (trailing.group(1) if trailing and m.group("cur") in ("$", "C$", "US$") else m.group("cur")).upper().replace("RS.", "INR").replace("RS", "INR").replace("₹", "INR").replace("C$", "CAD").replace("US$", "USD").replace("$", "USD")
     lo = float(m.group("lo").replace(",", "")) * (1000 if m.group("lok") else 1)
     hi = float(m.group("hi").replace(",", "")) * (1000 if m.group("hik") or (m.group("lok") and not m.group("hik")) else 1)
     if hi < 100 and lo < 100:  # hourly or noise like "1 - 2"
@@ -160,12 +162,17 @@ def _education(sections: list[tuple[str, str]]) -> dict:
     fields: set[str] = set()
     required = False
     for kind, line in sections:
-        for lvl, pat in EDU_LEVELS:
-            if pat.search(line):
-                if level is None or EDU_RANK[lvl] < EDU_RANK[level]:
-                    level = lvl
-                if kind != "preferred" and not INLINE_PREFERRED.search(line):
-                    required = True
+        # The lowest level a line accepts ("Bachelor's or Master's" -> bachelor); a bare
+        # "degree in X" means bachelor only when the line names no level.
+        line_levels = [lvl for lvl, pat in EDU_LEVELS if pat.search(line)]
+        if not line_levels and GENERIC_DEGREE.search(line):
+            line_levels = ["bachelor"]
+        if line_levels:
+            lvl = min(line_levels, key=EDU_RANK.__getitem__)
+            if level is None or EDU_RANK[lvl] < EDU_RANK[level]:
+                level = lvl
+            if kind != "preferred" and not INLINE_PREFERRED.search(line):
+                required = True
         if level or re.search(r"\bdegree\b", line, re.I):
             fields.update(f.lower() for f in EDU_FIELDS.findall(line))
     return {"required": required, "level": level, "fields": sorted(fields)}
